@@ -140,14 +140,23 @@ def food():
     id = request.args.get("id")
     try:
         status = checkIfFoodTaken(id)
-        #print(status[0][0]=='Yes', type(status))
-        #updateFoodForID(id)
-        #return status[0][0] == 'Yes'
         if status == []:
             updateFoodForID(id)
-            return f"Updated record for {id}"
+            return f"""
+            <html>
+                <body>
+                    <h1>Updated record for {id}</h1>
+                </body>
+            </html>
+            """
         elif status[0][0] == 'Yes':
-            return f"Food already taken for {id}"
+            return f"""
+            <html>
+                <body>
+                    <h1>Food already taken for {id}</h1>
+                </body>
+            </html>
+            """
     except HttpError as error:
         print(error)
         updateFoodForID(id)
