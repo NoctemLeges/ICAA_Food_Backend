@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+load_dotenv()
+import os
+import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -34,8 +38,8 @@ def get_sheets_service():
     if _service is not None:
         return _service
 
-    creds = Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
+    creds = Credentials.from_service_account_info(
+        json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"]),
         scopes=SCOPES
     )
 
