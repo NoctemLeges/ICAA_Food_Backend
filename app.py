@@ -18,10 +18,10 @@ SERVICE_ACCOUNT_FILE = "icaa-qr-generation-dc58b73870cd.json"
 _service = None
 
 SHEET_IDs = {
-    "Day 1 Lunch" : "15GP_nxpFz6ypEiAch_nQC_nY_0pdiC-ElU1_8oeQMuU",
-    "Day 2 Lunch" : "15GP_nxpFz6ypEiAch_nQC_nY_0pdiC-ElU1_8oeQMuU",
-    "Day 3 Lunch" : "15GP_nxpFz6ypEiAch_nQC_nY_0pdiC-ElU1_8oeQMuU",
-    "Day 3 Dinner" : "15GP_nxpFz6ypEiAch_nQC_nY_0pdiC-ElU1_8oeQMuU"
+    "Day 1 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
+    "Day 2 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
+    "Day 3 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
+    "Day 3 Dinner" : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s"
 }
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
