@@ -9,7 +9,7 @@ from flask import Flask, request
 
 #--------------GLOBALS--------------------------------------------
 
-today = "Day 2 Lunch"
+today = "Day 1 Lunch"
 
 app = Flask(__name__)
 
@@ -18,10 +18,10 @@ SERVICE_ACCOUNT_FILE = "icaa-qr-generation-dc58b73870cd.json"
 _service = None
 
 SHEET_IDs = {
-    "Day 1 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
-    "Day 2 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
-    "Day 3 Lunch"  : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s",
-    "Day 3 Dinner" : "1kgKZe_6ZIBxDgZQVaBdcu_MIXOM10ezRLlBX2jT4Y9s"
+    "Day 1 Lunch"  : "18LOeMF04XYSGKSy5TYnvTcUjWj8zy0BT82bhWGtRdz4",
+    "Day 2 Lunch"  : "18LOeMF04XYSGKSy5TYnvTcUjWj8zy0BT82bhWGtRdz4",
+    "Day 3 Lunch"  : "18LOeMF04XYSGKSy5TYnvTcUjWj8zy0BT82bhWGtRdz4",
+    "Day 3 Dinner" : "18LOeMF04XYSGKSy5TYnvTcUjWj8zy0BT82bhWGtRdz4"
 }
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
