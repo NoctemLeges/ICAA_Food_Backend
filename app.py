@@ -205,35 +205,35 @@ def mark_food_with_duplicate_check(scanned_id: str):
     for idx, row in enumerate(data):
         if len(row) >= 2 and row[0] == scanned_id:
             scanned_row = idx + 2
-            scanned_name = row[1].strip().lower()
+            scanned_name = row[1].strip()
             scanned_status = row[2].strip().lower() if len(row) >= 3 else ""
             break
 
     if not scanned_row:
-        return "invalid"
+        return "invalid", None
 
     if scanned_status == "yes":
-        return "already_taken"
+        return "already_taken", scanned_name
 
     for row in data:
         if len(row) >= 3:
             name = row[1].strip().lower()
             food_status = row[2].strip().lower()
 
-            if name == scanned_name and food_status == "yes":
+            if name == scanned_name.lower() and food_status == "yes":
                 writeValuestoRange(
                     SHEET_IDs[today],
                     [["Duplicate"]],
                     f"{today}!C{scanned_row}"
                 )
-                return "duplicate"
+                return "duplicate", scanned_name
 
     writeValuestoRange(
         SHEET_IDs[today],
         [["Yes"]],
         f"{today}!C{scanned_row}"
     )
-    return "yes"
+    return "yes", scanned_name
 #-----------------------------------------------------------------------------
 
 #---------------------------JWT Helpers---------------------------------------
@@ -370,25 +370,27 @@ def login():
 def food():
     scanned_id = request.args.get("id")
 
-    result = mark_food_with_duplicate_check(scanned_id)
+    status, scanned_name = mark_food_with_duplicate_check(scanned_id)
 
-    if result == "invalid":
+    if status == "invalid":
         return "<h1>❌ Invalid QR</h1>"
 
-    if result == "already_taken":
+    if status == "already_taken":
         return f"""
         <html>
             <body>
                 <h1>✅ Food already taken for {scanned_id}</h1>
+                <p><b>{scanned_name}</b> has already been served.</p>
             </body>
         </html>
         """
 
-    if result == "duplicate":
-        return """
+    if status == "duplicate":
+        return f"""
         <html>
             <body>
                 <h1>✅ Food already served through another ID.</h1>
+                <p><b>{scanned_name}</b> has already been served.</p>
             </body>
         </html>
         """
@@ -397,6 +399,7 @@ def food():
     <html>
         <body>
             <h1>✅ Food marked successfully</h1>
+            <p>Name: <b>{scanned_name}</b></p>
             <p>ID: {scanned_id}</p>
         </body>
     </html>
