@@ -1,16 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="card">
+    <div class="card-2 {{ css_class }}">
 
-        <h1 class="{{ css_class }}">{{ heading }}</h1>
+        {% if image %}
+            <img
+                src="{{ url_for('static', filename=image) }}"
+                alt="Image"
+                class="result-image"
+            >
+        {% endif %}
+
+        <h1>{{ heading }}</h1>
 
         {% if name %}
-            <p><b>Name:</b> {{ name }}</p>
+            <p class="name">Name: {{ name }}</p>
         {% endif %}
 
         {% if id %}
-            <p><b>ID:</b> {{ id }}</p>
+            <p class="id">ID: {{ id }}</p>
         {% endif %}
 
         <p class="subtext">{{ message }}</p>

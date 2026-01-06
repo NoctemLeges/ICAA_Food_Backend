@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>{{ title or "ICAA Food System" }}</title>
+    <title>ICAA'26</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='/images/ICAA logo 2.png') }}">
 </head>
 <body>
+    <div class="header">
+        <img src="{{ url_for('static', filename='/images/Heritage.png') }}">
+        <img src="{{ url_for('static', filename='/images/ICAA logo 2.png') }}" class="logo">
+        <img src="{{ url_for('static', filename='/images/LNCS.png') }}">
+    </div>
+
     <div class="container">
         {% block content %}{% endblock %}
     </div>

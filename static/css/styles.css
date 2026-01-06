@@ -1,21 +1,53 @@
+html,
+body {
+    height: 100%;
+}
+
 body {
     font-family: Arial, sans-serif;
-    background: #f5f5f5;
+    background: linear-gradient(to bottom,
+            #002a04 0%,
+            #2f6f3a 30%,
+            #eef5f0 50%,
+            #2f6f3a 70%,
+            #002a04 100%);
     margin: 0;
     padding: 0;
 }
 
 .container {
-    max-width: 480px;
-    margin: 60px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: 20px;
+    margin: 40px;
 }
 
 .card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.95);
     padding: 30px;
     border-radius: 14px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.card-2 {
+    background: #ffffff;
+    padding: 28px 32px;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border: 6px solid #002a04;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
     text-align: center;
 }
 
@@ -30,21 +62,45 @@ h2 {
 }
 
 /* Status colors */
-.success {
-    color: #1b5e20;
-}
-
-.warning {
-    color: #ff6f00;
-}
-
-.error {
-    color: #b71c1c;
-}
-
 .subtext {
-    margin-top: 12px;
+    font-size: medium;
     color: #555;
+}
+
+.card-2 .name {
+    font-size: x-large;
+    font-weight: 700;
+    color: #374151;
+}
+
+.card-2 .id {
+    font-size: large;
+    font-weight: 500;
+    color: #374151;
+}
+
+.card-2.success {
+    border-color: #166534;
+}
+
+.card-2.warning {
+    border-color: #ca8a04;
+}
+
+.card-2.error {
+    border-color: #991b1b;
+}
+
+.card-2.success h1 {
+    color: #166534;
+}
+
+.card-2.warning h1 {
+    color: #ca8a04;
+}
+
+.card-2.error h1 {
+    color: #991b1b;
 }
 
 /* Inputs & buttons */
@@ -65,9 +121,40 @@ h2 {
     border: none;
     border-radius: 8px;
     font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
 }
 
 .btn:hover {
     background: #1b5e20;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 18px 32px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 42, 4, 0.15);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .logo {
+    width: 120px;
+}
+
+.header img {
+    width: 50px;
+}
+
+.result-image {
+    margin-top: 16px;
+    max-width: 120px;
+    opacity: 0.9;
 }

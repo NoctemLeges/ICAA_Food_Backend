@@ -4,3 +4,4 @@ QRGeneration/
 ping.py
 PatchQRs/
 patch.py
+__pycache__/

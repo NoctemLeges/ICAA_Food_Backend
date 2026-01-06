@@ -154,8 +154,17 @@ def checkIfFoodTaken(ID: str):
 def get_food_stats():
     service = get_sheets_service()
 
-    # Read entire Food Taken column
-    result = (
+    rows_result = (
+        service.spreadsheets()
+        .values()
+        .get(
+            spreadsheetId=SHEET_IDs[today],
+            range=f"{today}!A2:A"
+        )
+        .execute()
+    )
+
+    food_result = (
         service.spreadsheets()
         .values()
         .get(
@@ -165,15 +174,18 @@ def get_food_stats():
         .execute()
     )
 
-    values = result.get("values", [])
+    rows = rows_result.get("values", [])
+    food = food_result.get("values", [])
 
     taken = 0
     not_taken = 0
 
-    for row in values:
-        if row and row[0].strip().lower() == "yes":
+    for i in range(len(rows)):
+        value = food[i][0].strip().lower() if i < len(food) and food[i] else ""
+
+        if value == "yes":
             taken += 1
-        elif row and row[0].strip().lower() == "duplicate":
+        elif value == "duplicate":
             continue
         else:
             not_taken += 1
@@ -280,7 +292,6 @@ def dashboard():
 
     return render_template(
     "dashboard.html",
-    title="Dashboard",
     day=today,
     taken=taken,
     not_taken=not_taken,
@@ -309,7 +320,7 @@ def login():
         )
         return res
 
-    return render_template("login.html", title="Login")
+    return render_template("login.html")
 
 @app.route("/food")
 @login_required
@@ -321,15 +332,17 @@ def food():
     if status == "invalid":
         return render_template(
             "food_status.html",
-            heading="❌ Invalid QR",
-            message="This QR code is not recognized.",
+            image="/images/Invalid.png",
+            heading="Invalid QR",
+            message="This QR code is not recognized, as this ID has not been assigned to anyone.",
             css_class="error"
         )
 
     if status == "already_taken":
         return render_template(
             "food_status.html",
-            heading="✅ Food Already Served",
+            image="/images/Served.png",
+            heading="Food Already Served",
             message="Food has already been served.",
             name=scanned_name,
             css_class="warning"
@@ -338,7 +351,8 @@ def food():
     if status == "duplicate":
         return render_template(
             "food_status.html",
-            heading="✅ Food Already Served",
+            image="/images/Served.png",
+            heading="Food Already Served",
             message="Food already served using another ID.",
             name=scanned_name,
             css_class="warning"
@@ -346,8 +360,9 @@ def food():
 
     return render_template(
         "food_status.html",
-        heading="✅ Food Marked Successfully",
-        message="Food marked successfully.",
+        image="/images/Served.png",
+        heading="Food Served Successfully",
+        message="Food Served to Guest.",
         name=scanned_name,
         id=scanned_id,
         css_class="success"
