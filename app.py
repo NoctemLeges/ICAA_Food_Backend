@@ -5,7 +5,7 @@ import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from flask import Flask, request, jsonify, redirect, make_response
+from flask import Flask, request, jsonify, redirect, make_response, render_template
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
@@ -278,42 +278,14 @@ def dashboard():
     taken, not_taken = get_food_stats()
     total = taken + not_taken
 
-    return f"""
-    <html>
-      <head>
-        <title>ICAA Food Dashboard</title>
-        <style>
-          body {{
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 40px;
-          }}
-          .card {{
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-          }}
-          h1 {{
-            margin-bottom: 20px;
-          }}
-          .stat {{
-            font-size: 20px;
-            margin: 10px 0;
-          }}
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <h1>{today}</h1>
-          <div class="stat">🍽️ Food Taken: <b>{taken}</b></div>
-          <div class="stat">⏳ Not Taken: <b>{not_taken}</b></div>
-          <div class="stat">👥 Total: <b>{total}</b></div>
-        </div>
-      </body>
-    </html>
-    """
+    return render_template(
+    "dashboard.html",
+    title="Dashboard",
+    day=today,
+    taken=taken,
+    not_taken=not_taken,
+    total=total
+)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -337,33 +309,7 @@ def login():
         )
         return res
 
-    return """
-    <html>
-      <body>
-        <h2>ICAA Food Login</h2>
-        <input type="password" id="pwd" placeholder="Enter password"/>
-        <button onclick="login()">Login</button>
-
-        <script>
-          async function login() {
-            const pwd = document.getElementById("pwd").value;
-            const res = await fetch("/login", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({ password: pwd })
-            });
-
-            if (res.ok) {
-              alert("Login successful");
-              window.location.href = "/";
-            } else {
-              alert("Invalid password");
-            }
-          }
-        </script>
-      </body>
-    </html>
-    """
+    return render_template("login.html", title="Login")
 
 @app.route("/food")
 @login_required
@@ -373,37 +319,39 @@ def food():
     status, scanned_name = mark_food_with_duplicate_check(scanned_id)
 
     if status == "invalid":
-        return "<h1>❌ Invalid QR</h1>"
+        return render_template(
+            "food_status.html",
+            heading="❌ Invalid QR",
+            message="This QR code is not recognized.",
+            css_class="error"
+        )
 
     if status == "already_taken":
-        return f"""
-        <html>
-            <body>
-                <h1>✅ Food already taken for {scanned_id}</h1>
-                <p><b>{scanned_name}</b> has already been served.</p>
-            </body>
-        </html>
-        """
+        return render_template(
+            "food_status.html",
+            heading="✅ Food Already Served",
+            message="Food has already been served.",
+            name=scanned_name,
+            css_class="warning"
+        )
 
     if status == "duplicate":
-        return f"""
-        <html>
-            <body>
-                <h1>✅ Food already served through another ID.</h1>
-                <p><b>{scanned_name}</b> has already been served.</p>
-            </body>
-        </html>
-        """
+        return render_template(
+            "food_status.html",
+            heading="✅ Food Already Served",
+            message="Food already served using another ID.",
+            name=scanned_name,
+            css_class="warning"
+        )
 
-    return f"""
-    <html>
-        <body>
-            <h1>✅ Food marked successfully</h1>
-            <p>Name: <b>{scanned_name}</b></p>
-            <p>ID: {scanned_id}</p>
-        </body>
-    </html>
-    """
+    return render_template(
+        "food_status.html",
+        heading="✅ Food Marked Successfully",
+        message="Food marked successfully.",
+        name=scanned_name,
+        id=scanned_id,
+        css_class="success"
+    )
 
 @app.route("/ping")
 def pong():

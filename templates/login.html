@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="card">
+        <h2>ICAA Food Login</h2>
+
+        <input
+            type="password"
+            id="pwd"
+            placeholder="Enter password"
+            class="input"
+        />
+
+        <button class="btn" onclick="login()">Login</button>
+    </div>
+
+    <script>
+        async function login() {
+            const pwd = document.getElementById("pwd").value;
+
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pwd })
+            });
+
+            if (res.ok) {
+                window.location.href = "/";
+            } else {
+                alert("Invalid password");
+            }
+        }
+    </script>
+{% endblock %}
