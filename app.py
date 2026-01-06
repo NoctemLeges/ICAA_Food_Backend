@@ -149,7 +149,91 @@ def updateFoodForID(ID:str):
 
 def checkIfFoodTaken(ID: str):
     value = readValueFromCell(SHEET_IDs[today],f"{today}!C{ID_to_row_map[ID]}")
-    return value    
+    return value
+
+def get_food_stats():
+    service = get_sheets_service()
+
+    # Read entire Food Taken column
+    result = (
+        service.spreadsheets()
+        .values()
+        .get(
+            spreadsheetId=SHEET_IDs[today],
+            range=f"{today}!C2:C"
+        )
+        .execute()
+    )
+
+    values = result.get("values", [])
+
+    taken = 0
+    not_taken = 0
+
+    for row in values:
+        if row and row[0].strip().lower() == "yes":
+            taken += 1
+        elif row and row[0].strip().lower() == "duplicate":
+            continue
+        else:
+            not_taken += 1
+
+    return taken, not_taken
+
+def get_all_food_data():
+    service = get_sheets_service()
+
+    result = (
+        service.spreadsheets()
+        .values()
+        .get(
+            spreadsheetId=SHEET_IDs[today],
+            range=f"{today}!A2:C"
+        )
+        .execute()
+    )
+
+    return result.get("values", [])
+
+def mark_food_with_duplicate_check(scanned_id: str):
+    data = get_all_food_data()
+
+    scanned_row = None
+    scanned_name = None
+    scanned_status = None
+
+    for idx, row in enumerate(data):
+        if len(row) >= 2 and row[0] == scanned_id:
+            scanned_row = idx + 2
+            scanned_name = row[1].strip().lower()
+            scanned_status = row[2].strip().lower() if len(row) >= 3 else ""
+            break
+
+    if not scanned_row:
+        return "invalid"
+
+    if scanned_status == "yes":
+        return "already_taken"
+
+    for row in data:
+        if len(row) >= 3:
+            name = row[1].strip().lower()
+            food_status = row[2].strip().lower()
+
+            if name == scanned_name and food_status == "yes":
+                writeValuestoRange(
+                    SHEET_IDs[today],
+                    [["Duplicate"]],
+                    f"{today}!C{scanned_row}"
+                )
+                return "duplicate"
+
+    writeValuestoRange(
+        SHEET_IDs[today],
+        [["Yes"]],
+        f"{today}!C{scanned_row}"
+    )
+    return "yes"
 #-----------------------------------------------------------------------------
 
 #---------------------------JWT Helpers---------------------------------------
@@ -188,6 +272,49 @@ def login_required(f):
 #-----------------------------------------------------------------------------
 
 #-----------------------ROUTES------------------------------------------------
+@app.route("/")
+@login_required
+def dashboard():
+    taken, not_taken = get_food_stats()
+    total = taken + not_taken
+
+    return f"""
+    <html>
+      <head>
+        <title>ICAA Food Dashboard</title>
+        <style>
+          body {{
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+          }}
+          .card {{
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          }}
+          h1 {{
+            margin-bottom: 20px;
+          }}
+          .stat {{
+            font-size: 20px;
+            margin: 10px 0;
+          }}
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>{today}</h1>
+          <div class="stat">🍽️ Food Taken: <b>{taken}</b></div>
+          <div class="stat">⏳ Not Taken: <b>{not_taken}</b></div>
+          <div class="stat">👥 Total: <b>{total}</b></div>
+        </div>
+      </body>
+    </html>
+    """
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -241,30 +368,39 @@ def login():
 @app.route("/food")
 @login_required
 def food():
-    id = request.args.get("id")
-    try:
-        status = checkIfFoodTaken(id)
-        if status == []:
-            updateFoodForID(id)
-            return f"""
-            <html>
-                <body>
-                    <h1>Updated record for {id}</h1>
-                </body>
-            </html>
-            """
-        elif status[0][0] == 'Yes':
-            return f"""
-            <html>
-                <body>
-                    <h1>Food already taken for {id}</h1>
-                </body>
-            </html>
-            """
-    except HttpError as error:
-        print(error)
-        updateFoodForID(id)
-        return f"Some error occured: {error}"
+    scanned_id = request.args.get("id")
+
+    result = mark_food_with_duplicate_check(scanned_id)
+
+    if result == "invalid":
+        return "<h1>❌ Invalid QR</h1>"
+
+    if result == "already_taken":
+        return f"""
+        <html>
+            <body>
+                <h1>✅ Food already taken for {scanned_id}</h1>
+            </body>
+        </html>
+        """
+
+    if result == "duplicate":
+        return """
+        <html>
+            <body>
+                <h1>✅ Food already served through another ID.</h1>
+            </body>
+        </html>
+        """
+
+    return f"""
+    <html>
+        <body>
+            <h1>✅ Food marked successfully</h1>
+            <p>ID: {scanned_id}</p>
+        </body>
+    </html>
+    """
 
 @app.route("/ping")
 def pong():
