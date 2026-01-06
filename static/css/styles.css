@@ -1,0 +1,73 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 480px;
+    margin: 60px auto;
+    padding: 20px;
+}
+
+.card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    text-align: center;
+}
+
+h1,
+h2 {
+    margin-bottom: 20px;
+}
+
+.stat {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+/* Status colors */
+.success {
+    color: #1b5e20;
+}
+
+.warning {
+    color: #ff6f00;
+}
+
+.error {
+    color: #b71c1c;
+}
+
+.subtext {
+    margin-top: 12px;
+    color: #555;
+}
+
+/* Inputs & buttons */
+.input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #1b5e20;
+}
