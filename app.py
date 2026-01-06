@@ -5,7 +5,10 @@ import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from flask import Flask, request
+from flask import Flask, request, jsonify, redirect, make_response
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
 
 #--------------GLOBALS--------------------------------------------
 
@@ -149,8 +152,94 @@ def checkIfFoodTaken(ID: str):
     return value    
 #-----------------------------------------------------------------------------
 
+#---------------------------JWT Helpers---------------------------------------
+JWT_SECRET = os.environ["JWT_SECRET"]
+JWT_EXP_MINUTES = int(os.environ.get("JWT_EXP_MINUTES", 1440))
+FOOD_ADMIN_PASSWORD = os.environ["FOOD_ADMIN_PASSWORD"]
+
+def generate_token():
+    payload = {
+        "role": "food_admin",
+        "exp": datetime.utcnow() + timedelta(minutes=JWT_EXP_MINUTES),
+        "iat": datetime.utcnow()
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+def verify_token(token):
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+#-----------------------------------------------------------------------------
+
+#---------------------------MIDDLEWARE----------------------------------------
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.cookies.get("token")
+
+        if not token or not verify_token(token):
+            return redirect("/login")
+
+        return f(*args, **kwargs)
+    return decorated
+#-----------------------------------------------------------------------------
+
 #-----------------------ROUTES------------------------------------------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        data = request.get_json()
+        password = data.get("password")
+
+        if password != FOOD_ADMIN_PASSWORD:
+            return jsonify({"error": "Invalid password"}), 401
+
+        token = generate_token()
+
+        res = make_response(jsonify({"success": True}))
+        res.set_cookie(
+            "token",
+            token,
+            httponly=True,
+            secure=False,
+            samesite="Lax",
+            max_age=24 * 60 * 60
+        )
+        return res
+
+    return """
+    <html>
+      <body>
+        <h2>ICAA Food Login</h2>
+        <input type="password" id="pwd" placeholder="Enter password"/>
+        <button onclick="login()">Login</button>
+
+        <script>
+          async function login() {
+            const pwd = document.getElementById("pwd").value;
+            const res = await fetch("/login", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({ password: pwd })
+            });
+
+            if (res.ok) {
+              alert("Login successful");
+              window.location.href = "/";
+            } else {
+              alert("Invalid password");
+            }
+          }
+        </script>
+      </body>
+    </html>
+    """
+
 @app.route("/food")
+@login_required
 def food():
     id = request.args.get("id")
     try:
