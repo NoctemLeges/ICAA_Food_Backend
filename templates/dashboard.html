@@ -4,8 +4,24 @@
     <div class="card">
         <h1>{{ day }}</h1>
 
-        <div class="stat">🍽️ Food Taken: <b>{{ taken }}</b></div>
-        <div class="stat">⏳ Not Taken: <b>{{ not_taken }}</b></div>
-        <div class="stat">👥 Total: <b>{{ total }}</b></div>
+        <div class="stat">🍽️ Food Taken: <b id="taken">{{ taken }}</b></div>
+        <div class="stat">⏳ Not Taken: <b id="not_taken">{{ not_taken }}</b></div>
+        <div class="stat">👥 Total: <b id="total">{{ total }}</b></div>
     </div>
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io()
+        
+        socket.on("connect", () => {
+            console.log("Dashboard connected");
+        });
+
+        socket.on("food_update", (data) => {
+            document.getElementById("taken").innerText = data.taken;
+            document.getElementById("not_taken").innerText = data.not_taken;
+            document.getElementById("total").innerText = data.total;
+        });
+    </script>
 {% endblock %}
