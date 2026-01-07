@@ -151,36 +151,86 @@ def checkIfFoodTaken(ID: str):
     value = readValueFromCell(SHEET_IDs[today],f"{today}!C{ID_to_row_map[ID]}")
     return value
 
+# def get_food_stats():
+#     service = get_sheets_service()
+
+#     rows_result = (
+#         service.spreadsheets()
+#         .values()
+#         .get(
+#             spreadsheetId=SHEET_IDs[today],
+#             range=f"{today}!A2:A"
+#         )
+#         .execute()
+#     )
+
+#     food_result = (
+#         service.spreadsheets()
+#         .values()
+#         .get(
+#             spreadsheetId=SHEET_IDs[today],
+#             range=f"{today}!C2:C"
+#         )
+#         .execute()
+#     )
+
+#     rows = rows_result.get("values", [])
+#     food = food_result.get("values", [])
+
+#     taken = 0
+#     not_taken = 0
+
+#     for i in range(len(rows)):
+#         value = food[i][0].strip().lower() if i < len(food) and food[i] else ""
+
+#         if value == "yes":
+#             taken += 1
+#         elif value == "duplicate":
+#             continue
+#         else:
+#             not_taken += 1
+
+#     return taken, not_taken
+
 def get_food_stats():
     service = get_sheets_service()
 
-    rows_result = (
-        service.spreadsheets()
-        .values()
-        .get(
-            spreadsheetId=SHEET_IDs[today],
-            range=f"{today}!A2:A"
-        )
-        .execute()
-    )
+    rows_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEET_IDs[today],
+        range=f"{today}!A2:A"
+    ).execute()
 
-    food_result = (
-        service.spreadsheets()
-        .values()
-        .get(
-            spreadsheetId=SHEET_IDs[today],
-            range=f"{today}!C2:C"
-        )
-        .execute()
-    )
+    names_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEET_IDs[today],
+        range=f"{today}!B2:B"
+    ).execute()
+
+    food_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEET_IDs[today],
+        range=f"{today}!C2:C"
+    ).execute()
 
     rows = rows_result.get("values", [])
+    names = names_result.get("values", [])
     food = food_result.get("values", [])
 
     taken = 0
     not_taken = 0
+    seen_names = set()
 
     for i in range(len(rows)):
+        # ---- NAME CHECK (ADDED) ----
+        name = names[i][0].strip().lower() if i < len(names) and names[i] else ""
+
+        if not name:
+            continue
+
+        if name in seen_names:
+            continue
+
+        seen_names.add(name)
+        # ----------------------------
+
         value = food[i][0].strip().lower() if i < len(food) and food[i] else ""
 
         if value == "yes":
