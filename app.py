@@ -413,7 +413,9 @@ def handle_disconnect():
 #-----------------------------------------------------------------------------
 
 #---------------------STARTUP-------------------------------------------------
+debug = os.environ.get("DEV_ENV", "false").lower() == "true"
+
 if __name__ == "__main__":
     #prepareSheets()
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=debug)
 #-----------------------------------------------------------------------------
